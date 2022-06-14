@@ -71,3 +71,6 @@ Batting %>%
 Batting %>% 
   ggplot(aes(x = hc_x, y = hc_y, color = pitch_type)) +
   geom_point(alpha = 0.3)
+
+# test
+
