@@ -46,18 +46,6 @@ Batting %>%
   geom_density2d() +
   coord_flip() +
   theme_bw()
-
-# ignore
-Batting %>% 
-  ggplot(aes(x = events)) +
-  geom_bar() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-Batting %>% 
-  ggplot(aes(x = pitch_type)) +
-  geom_bar()
-Batting %>% 
-  ggplot(aes(x = pitch_type, color = events)) +
-  geom_point(stat = "count")
   
 # hit distance by batted ball type ----------------------------------------
 
@@ -72,5 +60,38 @@ Batting %>%
   ggplot(aes(x = hc_x, y = hc_y, color = pitch_type)) +
   geom_point(alpha = 0.3)
 
-# test
-#test
+
+# pitch type --------------------------------------------------------------
+
+# overall pitch types
+edit_pitch <- Batting %>% 
+  filter(!is.na(pitch_type)) %>% 
+  mutate(pitch_type = fct_recode(pitch_type, "Changeup" = "CH", 
+                                 "Breaking ball" = "CU",
+                                 "Changeup" = "EP",
+                                 "Fastball" = "FA",
+                                 "Fastball" = "FC", 
+                                 "Fastball" = "FF", 
+                                 "Fastball" = "FS",
+                                 "Breaking ball" = "KC",  
+                                 "Fastball" = "SI",  
+                                 "Breaking ball" = "SL"))
+
+# strikes
+edit_pitch %>% 
+  ggplot(aes(x = pitch_type)) +
+  geom_bar(position = "dodge", aes(fill = factor(strikes))) +
+  labs(title = "Strikes") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+# balls
+edit_pitch %>% 
+  ggplot(aes(x = pitch_type)) +
+  geom_bar(position = "dodge", aes(fill = factor(balls))) +
+  labs(title = "Balls") +
+  theme_bw() +
+  theme(legend.position = "bottom") 
+
+
+# pitch type by count -----------------------------------------------------
