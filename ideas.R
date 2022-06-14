@@ -1,10 +1,12 @@
 
+
 # EDA project: MLB data ---------------------------------------------------
 # purpose: explore possible ideas for analysis
 
 # load packages
 library(tidyverse)
 library(patchwork)
+
 
 # load in data
 batted_data <- read_csv("http://www.stat.cmu.edu/cmsac/sure/2022/materials/data/sports/eda_projects/mlb_batted_balls_2022.csv")
@@ -35,6 +37,7 @@ of_shift <- Batting %>%
   geom_bar() +
   labs(title = "Outfield Shift",
        x = "fielding alignment")
+
 if_shift + of_shift
 
 
@@ -46,7 +49,21 @@ Batting %>%
   geom_density2d() +
   coord_flip() +
   theme_bw()
-  
+
+
+# ignore
+Batting %>% 
+  ggplot(aes(x = events)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+Batting %>% 
+  ggplot(aes(x = pitch_type)) +
+  geom_bar()
+Batting %>% 
+  ggplot(aes(x = pitch_type, color = events)) +
+  geom_point(stat = "count")
+
+
 # hit distance by batted ball type ----------------------------------------
 
 Batting %>% 
@@ -95,3 +112,6 @@ edit_pitch %>%
 
 
 # pitch type by count -----------------------------------------------------
+
+#  scale_x_continuous(labels = scales::comma)
+
