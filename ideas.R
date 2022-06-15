@@ -113,5 +113,18 @@ edit_pitch %>%
 
 # pitch type by count -----------------------------------------------------
 
-#  scale_x_continuous(labels = scales::comma)
+# grid of pitch types for every count 
+edit_pitch %>% 
+  ggplot(aes(x = pitch_type)) +
+  geom_bar() +
+  #facet_grid(balls ~ ., margins = TRUE) +
+  #facet_wrap(~balls) +
+  facet_grid(balls ~ strikes) +
+  theme_bw()
+
+
+# counts of pitch types by number of balls
+edit_pitch %>% 
+  ggplot(aes(x = pitch_type, fill = factor(balls))) +
+  geom_bar(position = "dodge")
 
