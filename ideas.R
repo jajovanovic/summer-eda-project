@@ -363,8 +363,6 @@ scoring %>%
          effective_speed) %>% 
   summary()
 
-# counts 2 ----------------------------------------------------------------
-
 
 # counts of pitch types by number of balls
 edit_pitch %>% 
