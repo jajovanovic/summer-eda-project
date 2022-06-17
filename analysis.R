@@ -49,19 +49,6 @@ Batting %>%
   theme_bw()
 
 
-# ignore
-Batting %>% 
-  ggplot(aes(x = events)) +
-  geom_bar() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-Batting %>% 
-  ggplot(aes(x = pitch_type)) +
-  geom_bar()
-Batting %>% 
-  ggplot(aes(x = pitch_type, color = events)) +
-  geom_point(stat = "count")
-
-
 # hit distance by batted ball type ----------------------------------------
 
 Batting %>% 
@@ -243,15 +230,6 @@ table(prop_count$pitch_type)
 
 # props by pitch type graphs ----------------------------------------------
 
-
-changeup_props <- prop_count %>% 
-  filter(pitch_type == "Changeup") %>% 
-  #mutate(count = fct_relevel(count, "zero-zero", "zero_one", "zero_two",
-  #                          "one_zero", "one_one", "one_two",
-  #                          "two_zero", "two_one", "two_two",
-  #                          "three_zero", "three_one", "three_two"))
-  changeup_props2 <- changeup_props
-
 changeup_props <- prop_count %>% 
   filter(pitch_type == "Changeup") %>% 
   mutate(count = fct_recode(count,
@@ -283,22 +261,6 @@ breaking_props <- prop_count %>%
                             "3-2" = "three_two"))
 
 
-breaking_props <- breaking_props %>% 
-  mutate(count = fct_recode(count,
-                            "0-0" = "zero_zero",
-                            "0-1" = "zero_one",
-                            "0-2" = "zero_two",
-                            "1-0" = "one_zero", 
-                            "1-1" = "one_one", 
-                            "1-2" = "one_two",
-                            "2-0" = "two_zero",
-                            "2-1" = "two_one", 
-                            "2-2" = "two_two",
-                            "3-1" = "three_one", 
-                            "3-2" = "three_two"))
-
-fast_props <- prop_count %>% 
-  filter(pitch_type == "Fastball")
 fast_props <- prop_count %>% 
   filter(pitch_type == "Fastball") %>% 
   mutate(count = fct_recode(count,
@@ -328,9 +290,9 @@ counts <- c("0-0", "0-1", "0-2", "1-0", "1-1", "1-2", "2-0", "2-1", "2-2",
 counts2 <- c("0-0", "0-1", "0-2", "1-0", "1-1", "1-2", "2-0", "2-1", "2-2",
              "3-1", "3-2")
 
+# graphs
 changeup_props %>% 
   ggplot(aes(x = count, y = prop)) +
-  #geom_point() +
   theme_bw() +
   geom_col() +
   labs(title = "Changeup") +
@@ -368,3 +330,12 @@ scoring %>%
 edit_pitch %>% 
   ggplot(aes(x = pitch_type, fill = factor(balls))) +
   geom_bar(position = "dodge")
+
+# data table --------------------------------------------------------------
+
+
+Batting %>% 
+  select(player_name, stand, events, release_speed, bb_type, 
+         hit_distance_sc) %>% 
+  head(5) %>% 
+  knitr::kable()
