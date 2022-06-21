@@ -23,7 +23,6 @@ batted_data <- read_csv("http://www.stat.cmu.edu/cmsac/sure/2022/materials/data/
 Batting <- as_tibble(batted_data)
 ```
 
-
 # Data
 
 - Batted balls data from the 2022 MLB season, through June 10th
@@ -39,6 +38,16 @@ Batting %>%
   head(5) %>% 
   knitr::kable(format = 'html')
 ```
+
+---
+
+# Background
+
+### Method
+
+  - reclassified pitch type to three groups: changeup, breaking ball, and fastball.
+  
+  - events organized as either on-base, out, or homerun.
 
 ---
 
@@ -91,8 +100,8 @@ Batting %>%
   labs(y= "Launch Speed (mph)", x = "Release Speed (mph)", title = "Comparing pitcher's release speed to batter's launch speed")
 ```
 
----
 
+---
 # How do left-handed batters and right-handed batters differ?
 
 1.  Does the event differ according to the handedness of the batter?
@@ -206,7 +215,7 @@ fast_props <- prop_count %>%
                             "3-2" = "three_two"))
 ```
 
-```{r, ptype_counts, echo = FALSE, fig.align='center', fig.width=10}
+```{r, ptype_counts, echo = FALSE, fig.align='center', fig.height=6, fig.width=12}
 counts <- c("0-0", "0-1", "0-2", "1-0", "1-1", "1-2", "2-0", "2-1", "2-2",
             "3-0", "3-1", "3-2")
 counts2 <- c("0-0", "0-1", "0-2", "1-0", "1-1", "1-2", "2-0", "2-1", "2-2",
@@ -217,29 +226,32 @@ g1 <- changeup_props %>%
   ggplot(aes(x = count, y = prop)) +
   theme_bw() +
   geom_col(fill= "#238A8DFF") +
-  labs(title = "Changeup") +
+  labs(title = "Changeup",
+       y = "proportion") +
   scale_x_discrete(limits = counts2)
 
 g2 <- breaking_props %>% 
   ggplot(aes(x = count, y = prop)) +
   theme_bw() +
   geom_col(fill= "#238A8DFF") +
-  labs(title = "Breaking balls") +
+  labs(title = "Breaking balls",
+       y = "proportion") +
   scale_x_discrete(limits = counts2)
 
 g3 <- fast_props %>% 
   ggplot(aes(x = count, y = prop)) +
   theme_bw() +
   geom_col(fill= "#238A8DFF") +
-  labs(title = "Fastball") +
+  labs(title = "Fastball",
+       y = "proportion") +
   scale_x_discrete(limits = counts)
 
 g1 + g2 + g3
 ```
 
---
+---
 
-The only type of pitch thrown during a 3-0 count is a fastball.
+# Clustering
 
 ---
 
@@ -252,4 +264,8 @@ The only type of pitch thrown during a 3-0 count is a fastball.
   - third
   
   - The probability of a pitch being thrown is not constant throughout an at bat
-      - the only type of pitch thrown during a 3-0 count is a fastball
+      - The only type of pitch thrown during a 3-0 count is a fastball
+      
+## Limitations
+
+  -  Team names are not included in the dataset
