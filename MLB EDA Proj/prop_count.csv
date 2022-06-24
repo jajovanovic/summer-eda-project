@@ -1,0 +1,35 @@
+pitch_type,n,prop,count
+Changeup,92,0.08243727598566308,zero_zero
+Breaking ball,280,0.25089605734767023,zero_zero
+Fastball,744,0.6666666666666666,zero_zero
+Changeup,154,0.17844727694090382,zero_one
+Breaking ball,297,0.34414831981460026,zero_one
+Fastball,412,0.47740440324449596,zero_one
+Changeup,72,0.15417558886509636,zero_two
+Breaking ball,184,0.39400428265524623,zero_two
+Fastball,211,0.4518201284796574,zero_two
+Changeup,73,0.1206611570247934,one_zero
+Breaking ball,121,0.2,one_zero
+Fastball,411,0.6793388429752066,one_zero
+Changeup,152,0.17798594847775176,one_one
+Breaking ball,237,0.2775175644028103,one_one
+Fastball,465,0.544496487119438,one_one
+Changeup,138,0.17271589486858574,one_two
+Breaking ball,299,0.3742177722152691,one_two
+Fastball,362,0.4530663329161452,one_two
+Changeup,68,0.14623655913978495,two_one
+Breaking ball,94,0.2021505376344086,two_one
+Fastball,303,0.6516129032258065,two_one
+Changeup,148,0.178743961352657,two_two
+Breaking ball,282,0.34057971014492755,two_two
+Fastball,398,0.4806763285024155,two_two
+Changeup,16,0.06722689075630252,two_zero
+Breaking ball,32,0.13445378151260504,two_zero
+Fastball,190,0.7983193277310925,two_zero
+Fastball,20,1,three_zero
+Changeup,11,0.05699481865284974,three_one
+Breaking ball,15,0.07772020725388601,three_one
+Fastball,167,0.8652849740932642,three_one
+Changeup,64,0.10902896081771721,three_two
+Breaking ball,144,0.2453151618398637,three_two
+Fastball,379,0.645655877342419,three_two
