@@ -1,36 +1,54 @@
-# PURPOSE: Brainstorm EDA for MLB Project
+---
+title: "MLB EDA Project"
+author: "Amor Ai"
+date: '2022-06-16'
+output: html_document
+---
 
-# Load the data -----------------------------------------------------------
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
+```{r load the data}
 library(tidyverse)
-
 batted_data <- read_csv("http://www.stat.cmu.edu/cmsac/sure/2022/materials/data/sports/eda_projects/mlb_batted_balls_2022.csv")
 
-# Initial examination of data ---------------------------------------------
-
-
 Batting <- as_tibble(batted_data)
+```
 
+# General Overview of Dataset/Explanation of Data Structure
+
+```{r overview}
 dim(Batting) #dimensions
-class(Batting) #what the object is
-
-head(Batting)
-tail(Batting)
+colnames(Batting)
+# head(Batting)
+# tail(Batting)
+# class(Batting)
 
 summary(Batting)
+```
 
-colnames(Batting)
+7085 observations of all batted balls from the current 2022 MLB season, through June 10th, courtesy of baseballsavant.com and accessed using the baseballr package
 
-Batting
+31 variables
 
-length(unique(Batting$player_name)) == nrow(Batting)
 
-head(Batting$bb_type)
+# Hypotheses
 
-# Most common way of getting out -------------------------------------------------------------
+1. In what ways are players getting out? (1D - categorical)
+2. How does release speed affect launch speed? (1D - continuous)
+3. How do left-handed batters and right-handed batters differ? (2D)
+    a.  Does the event differ according to the handedness of the batter? 
+    b.  Does hit location depend on the handedness of the batter?
+4. How does the probability of pitch type thrown change depending on the count? (2D)
 
-table(Batting$events)
 
+## What is the most common way of getting out? 
+
+```{r getting out}
+#table(Batting$events)
+
+#Filter events to just outs:
 Batting_outs <- Batting %>% 
   filter(events != "double", events != "field_error", 
          events != "fielders_choice", events !="home_run", 
@@ -46,11 +64,14 @@ Batting_outs <- Batting %>%
                       "Sacrifice Fly" = "sac_fly",
                       "Sacrifice Fly Double Play" = "sac_fly_double_play")) 
 
+#Table of outs
 table(Batting_outs$events)
 sort(table(Batting_outs$events), decreasing = TRUE)
 
+#Sort as decreasing
 Batting_outs$events <- factor(Batting_outs$events, names(sort(table(Batting_outs$events), increasing = TRUE)))
 
+#Graph
 Batting_outs %>% 
   ggplot(aes(x = events)) +
   geom_bar(fill= "#238A8DFF") +
@@ -60,109 +81,27 @@ Batting_outs %>%
   theme(axis.text = element_text(angle = 90)) +
   theme_bw()
   
+```
 
+## How does release speed affect launch speed?
 
-# Analyzing change of scores/runs -----------------------------------------
-
-any(is.na(c(Batting$home_score, Batting$post_home_score, 
-            Batting$away_score, Batting$post_away_score))) #no NA's
+```{r release and launch speed}
+#Remove NA's
+Batting <- Batting %>% 
+  filter(!is.na(release_speed), !is.na(launch_speed)) 
 
 Batting %>% 
-  select(home_score, post_home_score, away_score, post_away_score)
-
-
-Batting_runs <- Batting %>%
-  mutate(hometeam_runs = post_home_score - home_score) %>%
-  mutate(awayteam_runs = post_away_score - away_score) %>% 
-  select(bb_type, hometeam_runs, awayteam_runs) 
-
-# Histogram
-
-## Stacked - marginal
-
-Batting_runs %>%
-  ggplot(aes(x = hometeam_runs,
-             fill = bb_type)) +
-  geom_histogram(bins = 4) +
-  theme_bw() + theme(legend.position = "bottom")
-
-## Overlay - conditional
-
-Batting_runs %>%
-  ggplot(aes(x = hometeam_runs,
-             fill = bb_type)) + 
-  geom_histogram(alpha = .25, position = "identity") +
-  theme_bw() + theme(legend.position = "bottom")
-
-# OR
-
-Batting_runs %>%
-  ggplot(aes(x = hometeam_runs,
-             color = bb_type)) + 
-  geom_histogram(fill = NA, position = "identity") +
-  theme_bw() + theme(legend.position = "bottom")
-
-## Facet Wrap
-
-Batting_runs %>%
-  ggplot(aes(x = hometeam_runs)) + 
-  geom_histogram() +
+  ggplot(aes(x = release_speed, y = launch_speed)) +
+  geom_point(alpha = 0.5, color= "#238A8DFF") +
   theme_bw() +
-  facet_wrap(~ bb_type, ncol = 2, scales = "free_y")
+  labs(y= "Launch Speed (mph)", x = "Release Speed (mph)", title = "Comparing pitcher's release speed to batter's launch speed")
+```
 
-## Facet Grid
+## Does the event differ according to the handedness of the batter?
 
-Batting_runs %>%
-  ggplot(aes(x = hometeam_runs)) + 
-  geom_histogram() +
-  theme_bw() +
-  facet_grid(bb_type ~., margins = TRUE)
-
-
-
-
-
-# Stance vs hit distance --------------------------------------------------
-
-#Which handed batters hit farther?
-
-Batting %>% 
-  ggplot(aes(x = hit_distance_sc,
-             fill = stand)) +
-  geom_histogram(position = "fill") +
-  ggthemes::scale_color_colorblind() +
-  theme_bw()
-
-
-Batting %>% 
-  ggplot(aes(x = hit_distance_sc, y = stand)) +
-  geom_violin() +
-  geom_boxplot(width = .2) +
-  theme_bw()
-
-#get sample means of L and R
-#2 sample t test
-
-
-
-library(ggbeeswarm)
-Batting %>% 
-  ggplot(aes(y = hit_distance_sc)) +
-  geom_beeswarm(aes(x = "")) +
-  theme_bw()
-
-
-ggtitle("Distribution of hit distance by batting stance") +
-  ylab = ""
-theme_bw()
-
-
-
-# L vs R and events
-##filter events
+```{r proportion of on-base vs out vs home run based on hand}
 
 # Change labels for events
-
 table(Batting$events)
 
 filter_Batting <- Batting %>% 
@@ -184,48 +123,117 @@ filter_Batting <- Batting %>%
                       "On-base" = "single",
                       "On-base" = "triple"))
 
-table(filter_Batting$events)
+#table(filter_Batting$events)
 
-proportions(table(filter_Batting$stand, filter_Batting$events))
+left_Batting <- filter_Batting %>% 
+  filter(stand == "L") %>% 
+  group_by(events) %>% 
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n), hand = "left")
+
+right_Batting <- filter_Batting %>% 
+  filter(stand == "R") %>% 
+  group_by(events) %>% 
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n), hand = "right")
+
+prop_Batting <- left_Batting %>% 
+  rbind(right_Batting)
+
+prop_Batting %>% 
+  ggplot(aes(x = events, y = prop, fill = hand)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  labs(y= "Proportion", x = "Events", title = "Distribution of Events Based on Batting Left-handed vs Right-handed") 
 
 
-table("Stance" = filter_Batting$stand, 
-      "Events" = filter_Batting$events) %>% 
-  chisq.test()
+```
+### Is the difference significance?
 
+```{r test for significance}
 
-length(which(filter_Batting$stand=="L"))
-length(which(filter_Batting$stand=="R"))
+#Proportion of on-base
 
-###--------Initial plots
-
-#1 
-
-filter_Batting %>% 
-  ggplot(aes(x = stand,
-             fill = events)) +
-  geom_bar(position = "fill") +
+prop_Batting %>% 
+  filter(events == "On-base") %>% 
+  ggplot(aes(x = events, y = prop, fill = hand)) +
+  geom_col(position = "dodge") +
   theme_bw()
 
-#2
+stand_onbase <- prop_Batting %>% 
+  filter(events == "On-base")
 
-filter_Batting %>% 
-  ggplot(aes(x = stand,y = 
-             fill = events)) +
-  geom_bar(position = "dodge") +
+t.test(stand_onbase$prop)
+
+#Proportion of outs
+
+prop_Batting %>% 
+  filter(events == "Out") %>% 
+  ggplot(aes(x = events, y = prop, fill = hand)) +
+  geom_col(position = "dodge") +
   theme_bw()
 
+stand_outs <- prop_Batting %>% 
+  filter(events == "Out")
 
+t.test(stand_outs$prop)
 
+#Proportion of home-runs
 
+prop_Batting %>% 
+  filter(events == "Homerun") %>% 
+  ggplot(aes(x = events, y = prop, fill = hand)) +
+  geom_col(position = "dodge") +
+  theme_bw()
 
+stand_hr <- prop_Batting %>% 
+  filter(events == "Homerun")
 
+t.test(stand_hr$prop)
+```
 
+***YES, at alpha level 0.05, we have sufficient evidence to reject the null hypothesis that the proportion of on-base, outs, and home-runs between left and right-handed batters are different.***
 
+### Does hit location depend on the handedness of the batter?
 
-# Most popular pitch type depending on count ------------------------------
+```{r hit location depending on handedness}
 
-# Overall pitch types
+filter_location <- Batting %>% 
+  filter(!is.na(hit_location)) %>%  #get rid of NA's
+  group_by(hit_location, stand) 
+
+left_location <- filter_location %>% 
+  filter(stand == "L") %>% 
+  group_by(hit_location) %>% 
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n), hand = "left")
+
+right_location <- filter_location %>% 
+  filter(stand == "R") %>% 
+  group_by(hit_location) %>% 
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n), hand = "right")
+
+prop_location <- left_location %>% 
+  rbind(right_location)
+
+prop_location %>% 
+  ggplot(aes(x = hit_location, y = prop, fill = hand)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  labs(y= "Proportion", x = "Hit Location", title = "Distribution of Hit Location Based on Batting Left-handed vs Right-handed") +
+  scale_x_discrete(limits = c(1:9))
+
+```
+```{r hit location proportion overlap on actual baseball field?}
+
+```
+
+## How likely is a pitch type for each count?
+
+```{r load new variable}
+
+# overall pitch types
 edit_pitch <- Batting %>% 
   filter(!is.na(pitch_type)) %>% 
   mutate(pitch_type = fct_recode(pitch_type, "Changeup" = "CH", 
@@ -345,17 +353,127 @@ prop_count %>%
   ggplot(aes(x = pitch_type, y = prop, fill = count)) +
   geom_col(position = "dodge") +
   theme_bw() 
- 
+
+# write csv so all objects don't have to be loaded every time
+write_csv(prop_count, "prop_count.csv")
+
+# load csv
+library(readr)
+prop_count <- read_csv("prop_count.csv")
+View(prop_count)
+
+```
+
+```{r pitch type}
+
+changeup_props <- prop_count %>% 
+  filter(pitch_type == "Changeup") %>% 
+  mutate(count = fct_recode(count,
+                            "0-0" = "zero_zero",
+                            "0-1" = "zero_one",
+                            "0-2" = "zero_two",
+                            "1-0" = "one_zero", 
+                            "1-1" = "one_one", 
+                            "1-2" = "one_two",
+                            "2-0" = "two_zero",
+                            "2-1" = "two_one", 
+                            "2-2" = "two_two",
+                            "3-1" = "three_one", 
+                            "3-2" = "three_two"))
+
+breaking_props <- prop_count %>% 
+  filter(pitch_type == "Breaking ball") %>% 
+  mutate(count = fct_recode(count,
+                            "0-0" = "zero_zero",
+                            "0-1" = "zero_one",
+                            "0-2" = "zero_two",
+                            "1-0" = "one_zero", 
+                            "1-1" = "one_one", 
+                            "1-2" = "one_two",
+                            "2-0" = "two_zero",
+                            "2-1" = "two_one", 
+                            "2-2" = "two_two",
+                            "3-1" = "three_one", 
+                            "3-2" = "three_two"))
+  
+  
+breaking_props <- breaking_props %>% 
+  mutate(count = fct_recode(count,
+                            "0-0" = "zero_zero",
+                            "0-1" = "zero_one",
+                            "0-2" = "zero_two",
+                            "1-0" = "one_zero", 
+                            "1-1" = "one_one", 
+                            "1-2" = "one_two",
+                            "2-0" = "two_zero",
+                            "2-1" = "two_one", 
+                            "2-2" = "two_two",
+                            "3-1" = "three_one", 
+                            "3-2" = "three_two"))
+
+fast_props <- prop_count %>% 
+  filter(pitch_type == "Fastball")
+fast_props <- prop_count %>% 
+  filter(pitch_type == "Fastball") %>% 
+  mutate(count = fct_recode(count,
+                            "0-0" = "zero_zero",
+                            "0-1" = "zero_one",
+                            "0-2" = "zero_two",
+                            "1-0" = "one_zero", 
+                            "1-1" = "one_one", 
+                            "1-2" = "one_two",
+                            "2-0" = "two_zero",
+                            "2-1" = "two_one", 
+                            "2-2" = "two_two",
+                            "3-0" = "three_zero", 
+                            "3-1" = "three_one", 
+                            "3-2" = "three_two"))
 
 
-# Initial clustering ------------------------------------------------------
+# checking to make sure 3-0 is only fastballs
+try <- Batting %>% 
+  filter(balls == 3) %>% 
+  filter(strikes == 0) %>% 
+  arrange(pitch_type)
 
-## player name and hit distance, launch speed
 
-# Look at data/ remove na's
+counts <- c("0-0", "0-1", "0-2", "1-0", "1-1", "1-2", "2-0", "2-1", "2-2",
+            "3-0", "3-1", "3-2")
+counts2 <- c("0-0", "0-1", "0-2", "1-0", "1-1", "1-2", "2-0", "2-1", "2-2",
+            "3-1", "3-2")
 
+changeup_props %>% 
+  ggplot(aes(x = count, y = prop)) +
+  #geom_point() +
+  theme_bw() +
+  geom_col() +
+  labs(title = "Changeup") +
+  scale_x_discrete(limits = counts2)
+
+breaking_props %>% 
+  ggplot(aes(x = count, y = prop)) +
+  theme_bw() +
+  geom_col() +
+  labs(title = "Breaking balls") +
+  scale_x_discrete(limits = counts2)
+
+fast_props %>% 
+  ggplot(aes(x = count, y = prop)) +
+  theme_bw() +
+  geom_col() +
+  labs(title = "Fastball") +
+  scale_x_discrete(limits = counts)
+
+
+```
+
+
+# Initial Cluster 1: 
+## Clustering batted balls based on hit distance and launch speed
+
+```{r clean data}
 Batting <- Batting %>% 
-  filter(!is.na(hit_distance_sc), !is.na(launch_speed)) 
+  filter(!is.na(hit_distance_sc), !is.na(launch_speed)) # Look at data/ remove na's
 
 # Standardize first
 
@@ -368,10 +486,12 @@ std_batting %>%
   geom_point(alpha = 0.5) + 
   theme_bw() +
   coord_fixed()
+```
 
-# Try k-means clustering
 
-## elbow plot
+### Trying kmeans
+
+```{r k-means}
 
 # Initialize number of clusters to search over
 n_clusters_search <- 2:12
@@ -430,8 +550,10 @@ std_batting %>%
   theme(legend.position = "bottom") +
   coord_fixed()
 
+```
 
-# Try hierarchical clustering
+### Trying hclust
+```{r hclust}
 
 #minimax
 
@@ -470,7 +592,6 @@ std_batting %>%
   theme(legend.position = "bottom")
 
 
-
 #single
 
 batted_dist <- dist(dplyr::select(std_batting,
@@ -506,8 +627,21 @@ std_batting %>%
   theme(legend.position = "bottom")
 
 
+# How does events relate to our clustering results?
 
-# Summarize batted balls by player name -----------------------------------
+table("Clusters" = minimax_batted_clusters$cl,
+      "Events" = filter_Batting$events) 
+
+mosaicplot(table(minimax_batted_clusters$cl,
+      filter_Batting$events), main = "Relationship between clusters and events")
+
+```
+
+# Initial Cluster 2: 
+## Clustering players based on hit distance and launch speed (to see which players are strong hitters)
+
+```{r cluster players}
+# Summarize batted balls by player name
 
 #mean(table(Batting$player_name)) 
 #average at bats = 17, remove players who've batted less than 5 times 
@@ -584,6 +718,18 @@ best_batters <- filter_players %>%
   pull(player_name)
 
 data.frame(best_batters) #group of strongest batters this season
+```
+
+
+
+# Discussion
+
+- point out limitations & direction for next steps (future work)
+
+## References
+
+
+
 
 
 
