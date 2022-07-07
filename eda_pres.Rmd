@@ -45,9 +45,10 @@ Batting %>%
 
 ### Method
 
-  - reclassified pitch type to three groups: changeup, breaking ball, and fastball.
+  - Events organized as either on-base, out, or homerun.
+
+  - Reclassified pitch type to three groups: changeup, breaking ball, and fastball.
   
-  - events organized as either on-base, out, or homerun.
 
 ---
 
@@ -268,4 +269,4 @@ g1 + g2 + g3
       
 ## Limitations
 
-  -  Team names are not included in the dataset
+  -  Team names are not included in the dataset, so we were unable to compare differences between teams.
